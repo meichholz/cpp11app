@@ -1,0 +1,12 @@
+Gtest is no library anymore.
+----------------------------
+
+There are too many compile time dependencies between system under test and the
+testing framework to have a reliable, statical, library interface at hand.
+
+So the testee has to compile it's own library ad hoc.
+The source is available at /usr/src/gtest/src and we just symlink to that.
+The header is available "normally".
+
+But there is no "gtest.m4" any longer and one must abstract away.
+Here we have a dummy macro residing in gtest which is copied to m4/.
