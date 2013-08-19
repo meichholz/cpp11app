@@ -6,12 +6,14 @@
 
 #include "showcase.h"
 
+using namespace std;
+
 static void showSimpleIteration()
 {
     int myarray[5]={ 1,2,3,4,5};
     for (auto &x : myarray) x*=2;
-    for (auto x: myarray) std::cout << x << " ";
-    std::cout << std::endl;
+    for (auto x: myarray) cout << x << " ";
+    cout << endl;
 }
 
 /* validator delegation */
@@ -23,7 +25,7 @@ class MyHour {
             hour=hour_in;
         else
             hour=0;
-        std::cout << "hour=" << hour << std::endl;
+        cout << "hour=" << hour << endl;
     }
     MyHour(): MyHour(0) {};
     MyHour(double hour_in)
@@ -46,10 +48,10 @@ static void showValidatorDelegation()
 class IcBase {
     public:
         IcBase(int i) {
-            std::cout << "IcBase::IcBase("<< i << std::endl;
+            cout << "IcBase::IcBase("<< i << endl;
         }
-        IcBase(std::string s) {
-            std::cout << "IcBase::IcBase("<< s << std::endl;
+        IcBase(string s) {
+            cout << "IcBase::IcBase("<< s << endl;
         }
 };
 
@@ -57,7 +59,7 @@ class IcDerived: public IcBase {
     public:
         using IcBase::IcBase;
         IcDerived(double d) {
-            std::cout << "IcDerived::IcDerived(" << d << std::endl;
+            cout << "IcDerived::IcDerived(" << d << endl;
         }
 };
 
@@ -67,14 +69,14 @@ void showInheritedConstructor() {
     IcDerived(0.33);
 }
 #else
-void showInheritedConstructor() { std::cout << "inherited constructor not available" << std::endl; }
+void showInheritedConstructor() { cout << "inherited constructor not available" << endl; }
 #endif
 
 void showRawStringLiteral()
 {
-    std::cout << R"(Eins \ zwei \n
-        drei)" << std::endl;
-    std::cout << R"egal(Eins "()" zwei \ drei )egal" << std::endl;
+    cout << R"(Eins \ zwei \n
+        drei)" << endl;
+    cout << R"egal(Eins "()" zwei \ drei )egal" << endl;
 }
 
 void showBasicRegex()
@@ -82,14 +84,17 @@ void showBasicRegex()
     // http://www.cplusplus.com/reference/regex/basic_regex/
     // regex are ECMA script
     // see http://solarianprogrammer.com/2011/10/12/cpp-11-regex-tutorial/
-    std::regex rx("marian");
-    // uh, looks weird. No subset matchable?
-    if (std::regex_match("marianx", rx))
-        std::cout << "rule 1 matches" << std::endl;
-    if (std::regex_match("<mariaaaan@freenet.de>", rx))
-        std::cout << "rule 2 matches" << std::endl;
-    if (!std::regex_match("<jens@freenet.de>", rx))
-        std::cout << "rule 3 matches NOT" << std::endl;
+    regex rx("<marian");
+    string candis[] = { "<marian@freenet.de>", "<mariaaan@freenet.de>", "<jens@freenet.de>", "marian", "maria+n" };
+    // ok, regex_search() is ==def false for now (gcc 4.7.2).
+    for ( auto &testme : candis ) {
+        cout << "testing " << testme << ": ";
+        if (regex_search(testme, rx))
+            cout << "is";
+        else
+            cout << "not";
+        cout << " matching." << endl;
+    }
 }
 
 void Showcase::run()
@@ -104,7 +109,7 @@ void Showcase::run()
 void Showcase::throw_simple()
 {
     // http://www.cplusplus.com/reference/stdexcept/runtime_error/
-    throw std::runtime_error("showtime in showcase");
+    throw runtime_error("showtime in showcase");
 }
 
 
