@@ -6,6 +6,7 @@ class Showcase {
   Showcase() {}
   ~Showcase() {}
   void run();
+  void throw_simple();
 };
 
 #endif

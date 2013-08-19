@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <stdexcept>
+#include <regex>
 
 #include "showcase.h"
 
@@ -68,11 +70,42 @@ void showInheritedConstructor() {
 void showInheritedConstructor() { std::cout << "inherited constructor not available" << std::endl; }
 #endif
 
+void showRawStringLiteral()
+{
+    std::cout << R"(Eins \ zwei \n
+        drei)" << std::endl;
+    std::cout << R"egal(Eins "()" zwei \ drei )egal" << std::endl;
+}
+
+void showBasicRegex()
+{
+    // http://www.cplusplus.com/reference/regex/basic_regex/
+    // regex are ECMA script
+    // see http://solarianprogrammer.com/2011/10/12/cpp-11-regex-tutorial/
+    std::regex rx("marian");
+    // uh, looks weird. No subset matchable?
+    if (std::regex_match("marianx", rx))
+        std::cout << "rule 1 matches" << std::endl;
+    if (std::regex_match("<mariaaaan@freenet.de>", rx))
+        std::cout << "rule 2 matches" << std::endl;
+    if (!std::regex_match("<jens@freenet.de>", rx))
+        std::cout << "rule 3 matches NOT" << std::endl;
+}
+
 void Showcase::run()
 {
     showInheritedConstructor();
     showSimpleIteration();
     showValidatorDelegation();
+    showRawStringLiteral();
+    showBasicRegex();
 }
+
+void Showcase::throw_simple()
+{
+    // http://www.cplusplus.com/reference/stdexcept/runtime_error/
+    throw std::runtime_error("showtime in showcase");
+}
+
 
 
