@@ -1,7 +1,5 @@
-#include "app.h"
+#include "everything.h"
 #include "showcase.h"
-
-#include <iostream>
 
 using namespace std;
 
@@ -16,6 +14,7 @@ main (int argc, char *argv[])
     try {
         ::theApp = new App(argc, argv);
         if (argc==2 && string("--testrun=showcase")==argv[1]) {
+            ::theApp->showArguments();
             /* provisorial shortcut to showcase */
             auto showcase = new Showcase();
             showcase->run();

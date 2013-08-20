@@ -3,10 +3,9 @@
 BASEDIR=`dirname "$0"`
 
 # emulate missing environment for direct invocations
-# with "make check", top_builddir will be exported
+# with "make check", top_builddir will be exported (or ... not)
 
-test -z "$CMAKE_BINARY_DIR" && top_builddir="$CMAKE_BINARY_DIR"
-# GNU-AC: test -z "$top_builddir" && top_builddir="$BASEDIR/../../build_dir"
+test -z "$top_builddir" && top_builddir="$BASEDIR/../../build_dir"
 
 # get SUT standard path
 SUT="$top_builddir/src/cppeleven"

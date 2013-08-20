@@ -3,7 +3,7 @@
 #include <vector>
 #include <stdexcept>
 #include <boost/regex.hpp>
-
+#include "everything.h"
 #include "showcase.h"
 
 using namespace std;
