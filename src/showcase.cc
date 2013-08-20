@@ -2,7 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <stdexcept>
-#include <regex>
+#include <boost/regex.hpp>
 
 #include "showcase.h"
 
@@ -84,12 +84,12 @@ void showBasicRegex()
     // http://www.cplusplus.com/reference/regex/basic_regex/
     // regex are ECMA script
     // see http://solarianprogrammer.com/2011/10/12/cpp-11-regex-tutorial/
-    regex rx("<marian");
-    string candis[] = { "<marian@freenet.de>", "<mariaaan@freenet.de>", "<jens@freenet.de>", "marian", "maria+n" };
     // ok, regex_search() is ==def false for now (gcc 4.7.2).
+    boost::regex rx("maria+n");
+    string candis[] = { "<marian@freenet.de>", "<mariaaan@freenet.de>", "<jens@freenet.de>", "marian", "maria+n" };
     for ( auto &testme : candis ) {
         cout << "testing " << testme << ": ";
-        if (regex_search(testme, rx))
+        if (boost::regex_search(testme, rx))
             cout << "is";
         else
             cout << "not";

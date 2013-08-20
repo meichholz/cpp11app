@@ -10,7 +10,14 @@ set (MINOR_VERSION "0")
 set (PATCH_VERSION "1")
 set (AUTHOR_NAME "Marian Eichholz")
 set (AUTHOR_EMAIL "marian@bugslayer.de")
-# should become stringed options
+# setup boost libraries (/usr/share/cmake-2.8/Modules/FindBoost.cmake)
+set(Boost_USE_STATIC_LIBS        ON)
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package( Boost 1.53.0 COMPONENTS regex )
+# boost consequences in local CMakeLists
+
+# some automated testing should do fine
 set (GTEST_DIR "/usr/src/gtest-1.6.0" CACHE STRING "source base directory of google test framework")
 set (GMOCK_DIR "/usr/src/gmock-1.6.0" CACHE STRING "source base directory of google mock framework")
 # subdirectories and -projects
