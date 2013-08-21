@@ -8,6 +8,11 @@
 
 using namespace std;
 
+#if __GNU_C__ == 4 && __GNU_C_MINOR__ >= 7
+#define GCC_SUPPORTS_INHERITED_CONSTRUCTORS
+#define GCC_SUPPORTS_VALIDATOR_DELEGATION
+#endif
+
 static void showSimpleIteration()
 {
     int myarray[5]={ 1,2,3,4,5};
@@ -16,6 +21,7 @@ static void showSimpleIteration()
     cout << endl;
 }
 
+#ifdef GCC_SUPPORTS_VALIDATOR_DELEGATION
 /* validator delegation */
 class MyHour {
     int hour;
@@ -31,18 +37,17 @@ class MyHour {
     MyHour(double hour_in)
         :MyHour(static_cast<int>(ceil(hour_in))) {};
 };
+#endif
 
 static void showValidatorDelegation()
 {
+#ifdef GCC_SUPPORTS_VALIDATOR_DELEGATION
   MyHour(10);  
   MyHour(100);
   MyHour();
   MyHour(22.45);
-}
-
-#if __GNU_C__ == 4 && __GNU_C_MINOR__ >= 7
-#define GCC_SUPPORTS_INHERITED_CONSTRUCTORS
 #endif
+}
 
 #ifdef GCC_SUPPORTS_INHERITED_CONSTRUCTORS
 class IcBase {
