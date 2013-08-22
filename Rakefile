@@ -1,6 +1,18 @@
 ENV["LANG"]="C"
-#ENV["CXX"]="g++-4.7.3" if system("g++-4.7.3 --version")
-#ENV["CC"]="gcc-4.7.3" if system("gcc-4.7.3 --version")
+
+# auto-detect maximum c compiler
+[
+#  "4.8.1",
+  "4.7.3", "4.7.2",
+  "4.6.3",
+].each do |ver|
+  if system("g++-#{ver} --version")
+    puts "setting gcc-#{ver} as preferred compiler"
+    ENV["CXX"]="g++-#{ver}"
+    ENV["CC"]="gcc-#{ver}"
+    break
+  end
+end
 @run_arguments = "--testrun=showcase"
 load "../../lib/tasks/cmake.rake"
 
