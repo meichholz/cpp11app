@@ -44,8 +44,9 @@ TEST_F(App_Fixture, options) {
     OptionParser op;
     unsigned int dmask;
     bool verbose;
+    // TODO: pack value and default into typed pair instance
     op.on ('v', "verbose", verbose, false, "verbose output");
-    op.on ('d', "debug", dmask, 0ul, "debugging mask");
+    op.on ('d', "debug", dmask, 0u, "debugging mask");
     FAIL();
 }
 
