@@ -4,4 +4,5 @@
 #define AUTHOR_NAME "@AUTHOR_NAME@"
 #define AUTHOR_EMAIL "@AUTHOR_EMAIL@"
 
+#cmakedefine HAVE_BOOST
 

@@ -3,8 +3,6 @@
 
 using namespace std;
 
-App *theApp=(App*)0;
-
 // see: http://www.cplusplus.com/reference/
 // see: file:///usr/share/doc/c++-annotations/html/index.html
 

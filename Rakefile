@@ -7,7 +7,7 @@ ENV["LANG"]="C"
   "4.6.3",
 ].each do |ver|
   if system("g++-#{ver} --version")
-    puts "setting gcc-#{ver} as preferred compiler"
+    # puts "setting gcc-#{ver} as preferred compiler"
     ENV["CXX"]="g++-#{ver}"
     ENV["CC"]="gcc-#{ver}"
     break
