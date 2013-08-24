@@ -14,7 +14,7 @@ set (AUTHOR_EMAIL "marian@bugslayer.de")
 set(Boost_USE_STATIC_LIBS        OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package( Boost 1.53.0 COMPONENTS regex )
+find_package( Boost 1.49.0 COMPONENTS regex )
 # boost consequences in local CMakeLists
 
 # some automated testing should do fine
