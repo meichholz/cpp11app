@@ -1,16 +1,8 @@
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include "everything.h"
+#include "testhelper.h"
 
 /*  http://code.google.com/p/googletest/wiki/Primer#String_Comparison */
 
-class App_Fixture : public ::testing::Test {
-    virtual void SetUp() { ::theApp = new App({ (char*)"egal", (char*)""} ); }
-    virtual void TearDown() { delete ::theApp; ::theApp = nullptr; }
-};
-
-TEST_F(App_Fixture, sanity) {
+TEST_F(AppFixtureBase, sanity) {
   ASSERT_THROW(
             throw (std::runtime_error ("test exception")),
             std::runtime_error );

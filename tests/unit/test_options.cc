@@ -1,24 +1,13 @@
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
-
-#include "everything.h"
+#include "testhelper.h"
 
 //  http://code.google.com/p/googletest/wiki/Primer#String_Comparison
 //  http://code.google.com/p/googletest/wiki/AdvancedGuide#Explicit_Success_and_Failure
 
 // OK, we *REALLY* have to study move semantics, because too many anonymous
 // constructors.
+#include <unistd.h>
 
-#define CS(s) const_cast<char*>(s)
-
-class App_Fixture : public ::testing::Test {
-    virtual void SetUp() {
-        ::theApp = new App({ CS("egal"), CS("") } );
-    }
-    virtual void TearDown() { delete ::theApp; ::theApp = nullptr; }
-};
-
-enum class OptionFlags {
+enum class OptionFlags { // {{{
     OF_DECIMAL = 1,
     OF_HEXADECIMAL = 2,
     OF_BINARY = 4,
@@ -26,8 +15,8 @@ enum class OptionFlags {
     OF_OPTIONAL = 16,
     OF_DEFAULT = OF_DECIMAL,
 };
-
-class OptionValueBase {
+// }}}
+class OptionValueBase { // {{{
     public:
         virtual string name() = 0;
         virtual ~OptionValueBase() {}
@@ -42,8 +31,8 @@ class OptionValue : public OptionValueBase {
         OptionValue(T& ref, T def_value) { val_ = nullptr; }
         virtual ~OptionValue() { if (val_) delete val_ ; }
 };
-
-class OptionRecord {
+// }}}
+class OptionRecord { // {{{
     public:
         OptionRecord(char shortflag, string longflags, string description, OptionFlags flags, OptionValueBase *value_p);
         ~OptionRecord();
@@ -69,7 +58,8 @@ OptionRecord::~OptionRecord()
     // erm...
 }
 
-class OptionParser {
+// }}}
+class OptionParser { // {{{
     public:
         OptionParser() {};
         virtual ~OptionParser() {};
@@ -83,8 +73,8 @@ class OptionParser {
 
 void OptionParser::parse(vector<string> args)
 {
-    // string short_opts = "";
-    // vector<const struct option> long_opts;
+    string short_opts = "";
+    vector<const struct option*> long_opts;
     for (auto o_rec : opts_) {
         // TODO 1: construct short flag string
         // TODO 2: construct long options array
@@ -103,7 +93,8 @@ void OptionParser::on (char o_short, char const *o_long,
     opts_.push_back(OptionRecord(o_short, o_long, description, of, &value));
 }
 
-TEST_F(App_Fixture, options) {
+// }}}
+TEST_F(AppFixtureBase, options) {
     OptionParser op;
     unsigned int dmask;
     bool verbose;
