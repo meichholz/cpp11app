@@ -5,13 +5,12 @@
 
 /*  http://code.google.com/p/googletest/wiki/Primer#String_Comparison */
 
-class Main_Tester : public ::testing::Test {
-    virtual void SetUp() {
-        ::theApp = new App({ (char*)"egal", (char*)""} );
-    }
+class App_Fixture : public ::testing::Test {
+    virtual void SetUp() { ::theApp = new App({ (char*)"egal", (char*)""} ); }
+    virtual void TearDown() { delete ::theApp; ::theApp = nullptr; }
 };
 
-TEST_F(Main_Tester, sanity) {
+TEST_F(App_Fixture, sanity) {
   ASSERT_THROW(
             throw (std::runtime_error ("test exception")),
             std::runtime_error );

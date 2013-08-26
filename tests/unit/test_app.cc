@@ -7,9 +7,8 @@
 //  http://code.google.com/p/googletest/wiki/AdvancedGuide#Explicit_Success_and_Failure
 
 class App_Fixture : public ::testing::Test {
-    virtual void SetUp() {
-        ::theApp = new App({ (char*)"egal", (char*)""} );
-    }
+    virtual void SetUp() { ::theApp = new App({ (char*)"egal", (char*)""} ); }
+    virtual void TearDown() { delete ::theApp; ::theApp = nullptr; }
 };
 
 TEST_F(App_Fixture, greeter) {

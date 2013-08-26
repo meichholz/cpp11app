@@ -1,3 +1,7 @@
-cat ../build_dir/Testing/Temporary/LastTest.log*
+BASE=../build_dir/Testing/Temporary/LastTest.log
+if [ -r $BASE.tmp ]; then
+  exec cat $BASE.tmp
+fi
+cat $BASE
 
 

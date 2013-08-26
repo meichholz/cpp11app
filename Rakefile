@@ -16,3 +16,10 @@ end
 @run_arguments = "--testrun=showcase"
 load "../../lib/tasks/cmake.rake"
 
+desc "send test suite through valgrind"
+task :grindtest => :build do
+  system "valgrind --leak-check=full --show-reachable=yes build_dir/tests/unit/test_main"
+end
+
+
+
