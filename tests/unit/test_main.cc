@@ -2,7 +2,7 @@
 
 /*  http://code.google.com/p/googletest/wiki/Primer#String_Comparison */
 
-TEST_F(AppFixtureBase, sanity) {
+TEST_F(AppFixtureBase, exceptionsanity) {
   ASSERT_THROW(
             throw (std::runtime_error ("test exception")),
             std::runtime_error );

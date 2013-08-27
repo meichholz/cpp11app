@@ -10,7 +10,15 @@
 #include <utility>
 #include <boost/regex.hpp>
 
-using namespace std;
+using std::cin;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::vector;
+using std::string;
+using std::initializer_list;
+using std::unique_ptr;
+using std::shared_ptr;
 
 // application own header
 #include "app.h"

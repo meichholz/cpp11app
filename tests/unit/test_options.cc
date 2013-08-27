@@ -3,109 +3,161 @@
 //  http://code.google.com/p/googletest/wiki/Primer#String_Comparison
 //  http://code.google.com/p/googletest/wiki/AdvancedGuide#Explicit_Success_and_Failure
 
-// OK, we *REALLY* have to study move semantics, because too many anonymous
-// constructors.
+extern "C" {
 #include <unistd.h>
-
-enum class OptionFlags { // {{{
-    OF_DECIMAL = 1,
-    OF_HEXADECIMAL = 2,
-    OF_BINARY = 4,
-    OF_FLOAT = 8,
-    OF_OPTIONAL = 16,
-    OF_DEFAULT = OF_DECIMAL,
-};
-// }}}
-class OptionValueBase { // {{{
-    public:
-        virtual string name() = 0;
-        virtual ~OptionValueBase() {}
-};
-
-template <typename T>
-class OptionValue : public OptionValueBase {
-    private:
-        std::pair<T, T&> *val_;
-    public:
-        virtual string name () { return "unknown"; }
-        OptionValue(T& ref, T def_value) { val_ = nullptr; }
-        virtual ~OptionValue() { if (val_) delete val_ ; }
-};
-// }}}
-class OptionRecord { // {{{
-    public:
-        OptionRecord(char shortflag, string longflags, string description, OptionFlags flags, OptionValueBase *value_p);
-        ~OptionRecord();
-    private:
-        char shortflag_;
-        string longflag_;
-        string  description_;
-        OptionFlags flags_;
-        OptionValueBase *value_p_;
-   friend class OptionParser;
-};
-
-OptionRecord::OptionRecord(char shortflag, string longflags, string description, OptionFlags flags, OptionValueBase *value_p)
-{
-            shortflag_= shortflag;
-            flags_ = flags;
-            value_p_ = value_p_; // move semantics?
-            description_ = description;
+#include <getopt.h>
 }
 
-OptionRecord::~OptionRecord()
-{
-    // erm...
-}
+namespace Option {
+    enum class Flags { // {{{
+        DECIMAL = 1,
+        HEXADECIMAL = 2,
+        BINARY = 4,
+        FLOAT = 8,
+        OPTIONAL = 16,
+        BOOLEAN = 32,
+        DEFAULT = DECIMAL,
+    };
+    // }}}
+    class ValueBase { // {{{
+        public:
+            virtual ~ValueBase() {}
+            virtual ValueBase *clone() = 0;
+            virtual void setDefault() = 0;
+            virtual void setValue(string arg, Flags flags) = 0;
+    };
 
-// }}}
-class OptionParser { // {{{
-    public:
-        OptionParser() {};
-        virtual ~OptionParser() {};
-        virtual void on (char o_short, char const *o_long,
-                OptionValueBase && value,
-                char const *description=nullptr, OptionFlags of=OptionFlags::OF_DEFAULT);
-        virtual void parse(vector<string> args);
-    private:
-        vector<OptionRecord> opts_;
-};
+    template <typename T>
+        class Value : public ValueBase {
+            private:
+                std::pair<T*, T> val_; // varptr, defval
+            public:
+                // constructors
+                Value(T *var_p, T def_value) { val_ = std::make_pair(var_p, def_value); }
+                Value(Value<T> *o) { val_ = o->val_; }
+                virtual ~Value() { }
+                virtual Value<T> *clone() { return new Value<T>(this); }
+                virtual void setDefault() { *(val_.first) = val_.second; }
+                virtual void setValue(string arg, Flags flags) { cerr << "cannot set " << arg << endl; }
+        };
+    // }}}
+    class Record { // {{{
+        private:
+            ValueBase *value_p_;
+            Flags flags_;
+            char shortflag_;
+            string longflag_;
+            string  description_;
+        public:
+            // constructors
+            Record(char shortflag, string longflag, string description, Flags flags, ValueBase *value_p) : 
+                value_p_(value_p),
+                flags_(flags),
+                shortflag_(shortflag),
+                longflag_(longflag),
+                description_(description)
+                {}
+            ~Record() { delete value_p_; }
+            // accessors
+            char getShortName() { return shortflag_; }
+            const string & getLongName() { return longflag_; }
+            const string & getDescription() { return description_; }
+            Flags getFlags() { return flags_; }
+            ValueBase & getValue() { return *value_p_; }
+    };
 
-void OptionParser::parse(vector<string> args)
+
+    // }}}
+    class Parser { // {{{
+        public:
+            Parser() {};
+            virtual ~Parser() {};
+            virtual void on (char o_short, char const *o_long,
+                    bool * value, bool def_value=true,
+                    char const *description=nullptr);
+            virtual void on (char o_short, char const *o_long,
+                    ValueBase *value_p,
+                    char const *description=nullptr, Flags of=Flags::DEFAULT);
+            virtual void parse(vector<string> args);
+        private:
+            vector<unique_ptr<Record>> opts_; // will safely destroy record objects
+    };
+
+    // }}}
+} // namespace
+
+void Option::Parser::parse(vector<string> args) //{{{
 {
+    // http://www.cplusplus.com/reference/string/string/
     string short_opts = "";
-    vector<const struct option*> long_opts;
-    for (auto o_rec : opts_) {
-        // TODO 1: construct short flag string
-        // TODO 2: construct long options array
-        // TODO 3: transform args to argc/argv
-        // TODO 4: iterate through getopt_long()
-        cout << "checking flag "<<o_rec.shortflag_ << endl;
+    auto c_opts=opts_.size();
+    struct option *long_opts = new struct option [c_opts+1];
+    // zero the last record explicitly
+    long_opts[c_opts].name = nullptr;
+    long_opts[c_opts].flag = nullptr;
+    long_opts[c_opts].val = long_opts[c_opts].has_arg = 0;
+    for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
+    {
+        auto rec=opts_[i].get(); // get the object ptr behind
+        cout << "checking: "<<rec->getDescription() << endl;
+        long_opts[i].name = rec->getLongName().c_str();
+        long_opts[i].val = rec->getShortName();
+        long_opts[i].flag = NULL; // use value and compatibility layer
+        // set short flag
+        short_opts.push_back(rec->getShortName());
+        if (! ((int)(rec->getFlags()) & (int)(Option::Flags::BOOLEAN) ))
+        {
+            // argument needed
+            short_opts.push_back(':');
+            long_opts[i].has_arg = required_argument;
+        }
+        else
+        {
+            long_opts[i].has_arg = no_argument;
+        }
+        // set default value
+        rec->getValue().setDefault();
     }
-
+    cout << "short options: " << short_opts << endl;
+    // TODO 3: transform args to argc/argv
+    // int argc = args.size();
+    // char **argv = nullptr;
+    // TODO 4: iterate through getopt_long()
+    // TODO: delegate to submethod
+    // cleanup
+    delete [] long_opts;
 }
-
-void OptionParser::on (char o_short, char const *o_long,
-       OptionValueBase && value,
-       char const *description, OptionFlags of)
+//}}}
+void Option::Parser::on // {{{
+    (char o_short, char const *o_long,
+     ValueBase *value_p,
+     char const *description, Flags of)
 {
-    cout << "registering a generic tuple '"<< value.name()<<"'" << endl;
-    opts_.push_back(OptionRecord(o_short, o_long, description, of, &value));
+    opts_.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, value_p)));
 }
-
-// }}}
+void Option::Parser::on // {{{
+    (char o_short, char const *o_long, bool *value, bool def_value,
+     char const *description)
+{
+    auto oval = new Option::Value<bool>(value, def_value);
+    auto of = Option::Flags::BOOLEAN;
+    opts_.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
+}
+//}}}
 TEST_F(AppFixtureBase, options) {
-    OptionParser op;
-    unsigned int dmask;
-    bool verbose;
-    string config_file_name;
-    op.on ('v', "verbose", OptionValue<bool>(verbose, false), "verbose output");
-    op.on ('c', "config", OptionValue<string>(config_file_name, "./x.ini"), "configfile name");
-    op.on ('d', "debug", OptionValue<unsigned int>(dmask, 0u), "debugging mask");
+    Option::Parser op;
+    unsigned int dmask(56u);
+    bool verbose(true);
+    string config_file_name("wurscht");
+    op.on ('v', "verbose", &verbose, false, "verbose output");
+    op.on ('c', "config", new Option::Value<string>(&config_file_name, "./x.ini"), "configfile name");
+    op.on ('d', "debug", new Option::Value<unsigned int>(&dmask, 2204u), "debugging mask");
 
     op.parse(vector<string>({CS("egal"), CS("-v"), CS("-d"), CS("23") }));
-    
-    FAIL();
+
+    EXPECT_EQ(verbose, false);
+    EXPECT_EQ(dmask, 2204u);
+    EXPECT_STREQ(config_file_name.c_str(), "./x.ini");
 }
 
 
