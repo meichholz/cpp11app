@@ -70,8 +70,8 @@ namespace Option {
     // }}}
     class Parser { // {{{
         public:
-            Parser() {};
-            virtual ~Parser() {};
+            Parser();
+            virtual ~Parser();
             virtual void on (char o_short, char const *o_long,
                     bool * value, bool def_value=true,
                     char const *description=nullptr);
@@ -80,18 +80,28 @@ namespace Option {
                     char const *description=nullptr, Flags of=Flags::DEFAULT);
             virtual void parse(vector<string> args);
         private:
+            void setupGnuInterface();
+            void cleanupGnuInterface();
             vector<unique_ptr<Record>> opts_; // will safely destroy record objects
+            struct option *long_opts; // man 3 getopt_long
     };
-
     // }}}
 } // namespace
 
-void Option::Parser::parse(vector<string> args) //{{{
+// {{{ ctor stuff
+Option::Parser::Parser() {
+    long_opts = nullptr;
+}
+
+Option::Parser::~Parser() {
+    cleanupGnuInterface();
+}
+// }}}
+void Option::Parser::setupGnuInterface() //{{{
 {
-    // http://www.cplusplus.com/reference/string/string/
     string short_opts = "";
     auto c_opts=opts_.size();
-    struct option *long_opts = new struct option [c_opts+1];
+    long_opts = new struct option [c_opts+1];
     // zero the last record explicitly
     long_opts[c_opts].name = nullptr;
     long_opts[c_opts].flag = nullptr;
@@ -119,13 +129,26 @@ void Option::Parser::parse(vector<string> args) //{{{
         rec->getValue().setDefault();
     }
     cout << "short options: " << short_opts << endl;
+}
+
+void Option::Parser::cleanupGnuInterface() // {{{
+{
+    delete [] long_opts;
+    long_opts = nullptr;
+}
+
+//}}}
+void Option::Parser::parse(vector<string> args) //{{{
+{
+    // http://www.cplusplus.com/reference/string/string/
+    setupGnuInterface();
     // TODO 3: transform args to argc/argv
     // int argc = args.size();
     // char **argv = nullptr;
     // TODO 4: iterate through getopt_long()
     // TODO: delegate to submethod
     // cleanup
-    delete [] long_opts;
+    cleanupGnuInterface();
 }
 //}}}
 void Option::Parser::on // {{{

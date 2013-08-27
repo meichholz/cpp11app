@@ -20,7 +20,7 @@ load "../../lib/tasks/cmake.rake"
 
 desc "send test suite through valgrind"
 task :grindcheck => :build do
-  system "valgrind --leak-check=full --show-reachable=yes build_dir/tests/unit/test_main"
+  sh "valgrind --leak-check=full --show-reachable=yes build_dir/tests/unit/test_main"
 end
 
 
