@@ -12,6 +12,7 @@
 //  http://code.google.com/p/googletest/wiki/AdvancedGuide#Explicit_Success_and_Failure
 
 class AppFixtureBase : public ::testing::Test {
+    protected:
     virtual void SetUp() { ::theApp = new App({ CS("egal"), CS("") } );
     }
     virtual void TearDown() { delete ::theApp; ::theApp = nullptr; }

@@ -2,10 +2,21 @@
 
 //  http://code.google.com/p/googletest/wiki/Primer#String_Comparison
 //  http://code.google.com/p/googletest/wiki/AdvancedGuide#Explicit_Success_and_Failure
+// http://www.cplusplus.com/reference/string/string/
 
 extern "C" {
 #include <unistd.h>
 #include <getopt.h>
+}
+
+typedef enum { OK, FAIL } t_rc;
+
+// TODO: Help...
+
+// TODO: callback functions
+
+namespace std {
+    string to_string(string &s) { return s; }
 }
 
 namespace Option {
@@ -24,6 +35,7 @@ namespace Option {
             virtual ~ValueBase() {}
             virtual ValueBase *clone() = 0;
             virtual void setDefault() = 0;
+            virtual const string getDefault() = 0;
             virtual void setValue(string arg, Flags flags) = 0;
     };
 
@@ -38,8 +50,22 @@ namespace Option {
                 virtual ~Value() { }
                 virtual Value<T> *clone() { return new Value<T>(this); }
                 virtual void setDefault() { *(val_.first) = val_.second; }
-                virtual void setValue(string arg, Flags flags) { cerr << "cannot set " << arg << endl; }
+                virtual const string getDefault() { return std::to_string(val_.second); }
+                virtual void setValue(string arg, Flags flags);
         };
+
+template <typename T>
+void Value<T>::setValue(string arg, Flags flags)
+{
+    std::istringstream argstream(arg);
+    T result;
+    std::ios_base& (*conversion)(std::ios_base&);
+    conversion = std::dec; // TODO: find conversion based on flags
+    bool failed = (argstream >> conversion >> result).fail();
+    if (failed) throw std::runtime_error(string("Option::Parser: cannot convert ")+arg);
+    *(val_.first) = result;
+}
+
     // }}}
     class Record { // {{{
         private:
@@ -57,41 +83,53 @@ namespace Option {
                 longflag_(longflag),
                 description_(description)
                 {}
-            ~Record() { delete value_p_; }
+            virtual ~Record() { delete value_p_; }
             // accessors
-            char getShortName() { return shortflag_; }
-            const string & getLongName() { return longflag_; }
-            const string & getDescription() { return description_; }
-            Flags getFlags() { return flags_; }
-            ValueBase & getValue() { return *value_p_; }
+            char getShortName() const { return shortflag_; }
+            const string & getLongName() const { return longflag_; }
+            virtual const string & getDescription() const { return description_; }
+            virtual Flags getFlags() const { return flags_; }
+            ValueBase & getValue() const { return *value_p_; }
+            // utility
+            virtual bool hasArgument() const {
+               return !((int)(flags_) & (int)(Option::Flags::BOOLEAN) );
+            }
     };
 
 
     // }}}
     class Parser { // {{{
         public:
-            Parser();
+            Parser(string appname="program", string argspec="");
             virtual ~Parser();
             virtual void on (char o_short, char const *o_long,
-                    bool * value, bool def_value=true,
-                    char const *description=nullptr);
+                    bool * value, 
+                    char const *description="");
             virtual void on (char o_short, char const *o_long,
                     ValueBase *value_p,
-                    char const *description=nullptr, Flags of=Flags::DEFAULT);
-            virtual void parse(vector<string> args);
+                    char const *description="", Flags of=Flags::DEFAULT);
+            virtual int parse(vector<string> args);
+            virtual void showHelp(std::ostream &os = cout);
         private:
+            vector<unique_ptr<Record>> opts_; // will safely destroy record objects
+            struct option *longopts_; // man 3 getopt_long
+            string shortopts_;
+            string appname_;
+            string argspec_;
             void setupGnuInterface();
             void cleanupGnuInterface();
-            vector<unique_ptr<Record>> opts_; // will safely destroy record objects
-            struct option *long_opts; // man 3 getopt_long
+            const Record *findRecordByFlag(char oflag);
     };
     // }}}
 } // namespace
 
 // {{{ ctor stuff
-Option::Parser::Parser() {
-    long_opts = nullptr;
-}
+Option::Parser::Parser(string appname, string argspec) :
+    longopts_(nullptr),
+    shortopts_(""),
+    appname_(appname),
+    argspec_(argspec)
+{ }
 
 Option::Parser::~Parser() {
     cleanupGnuInterface();
@@ -99,56 +137,106 @@ Option::Parser::~Parser() {
 // }}}
 void Option::Parser::setupGnuInterface() //{{{
 {
-    string short_opts = "";
     auto c_opts=opts_.size();
-    long_opts = new struct option [c_opts+1];
+    longopts_ = new struct option [c_opts+1];
+    shortopts_ = "";
     // zero the last record explicitly
-    long_opts[c_opts].name = nullptr;
-    long_opts[c_opts].flag = nullptr;
-    long_opts[c_opts].val = long_opts[c_opts].has_arg = 0;
+    longopts_[c_opts].name = nullptr;
+    longopts_[c_opts].flag = nullptr;
+    longopts_[c_opts].val = longopts_[c_opts].has_arg = 0;
     for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
     {
         auto rec=opts_[i].get(); // get the object ptr behind
-        cout << "checking: "<<rec->getDescription() << endl;
-        long_opts[i].name = rec->getLongName().c_str();
-        long_opts[i].val = rec->getShortName();
-        long_opts[i].flag = NULL; // use value and compatibility layer
-        // set short flag
-        short_opts.push_back(rec->getShortName());
-        if (! ((int)(rec->getFlags()) & (int)(Option::Flags::BOOLEAN) ))
+        longopts_[i].name = rec->getLongName().c_str();
+        longopts_[i].val = rec->getShortName();
+        longopts_[i].flag = NULL; // use value and compatibility layer
+        shortopts_.push_back(rec->getShortName());
+        if (rec->hasArgument())
         {
-            // argument needed
-            short_opts.push_back(':');
-            long_opts[i].has_arg = required_argument;
+            shortopts_.push_back(':');
+            longopts_[i].has_arg = required_argument;
         }
         else
         {
-            long_opts[i].has_arg = no_argument;
+            longopts_[i].has_arg = no_argument;
         }
-        // set default value
         rec->getValue().setDefault();
     }
-    cout << "short options: " << short_opts << endl;
+    // cout << "short options: " << shortopts_ << endl;
 }
-
+// }}}
 void Option::Parser::cleanupGnuInterface() // {{{
 {
-    delete [] long_opts;
-    long_opts = nullptr;
+    delete [] longopts_;
+    longopts_ = nullptr;
 }
 
 //}}}
-void Option::Parser::parse(vector<string> args) //{{{
+void Option::Parser::showHelp(std::ostream &os) // {{{
 {
-    // http://www.cplusplus.com/reference/string/string/
+    os << "usage: " << appname_ << " {OPTION} " << argspec_ << endl << endl;
+    os << "OPTION may be:" << endl;
+    auto c_opts = opts_.size();
+    for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
+    {
+        auto rec=opts_[i].get(); // get the object ptr behind
+        os << "\t-" << rec->getShortName() << "/--"  << rec->getLongName()
+            << "\t: " << rec->getDescription();
+        if (rec->hasArgument()) {
+          os << " [" << rec->getValue().getDefault() << "]";
+        }
+        os << endl;
+    }
+}
+// }}}
+const Option::Record *Option::Parser::findRecordByFlag(char oflag) // {{{
+{
+    auto c_opts = opts_.size();
+    for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
+    {
+        auto rec=opts_[i].get(); // get the object ptr behind
+        if (rec->getShortName() == oflag)
+            return rec;
+    }
+    return nullptr;
+}
+
+int Option::Parser::parse(vector<string> args) //{{{
+{
     setupGnuInterface();
-    // TODO 3: transform args to argc/argv
-    // int argc = args.size();
-    // char **argv = nullptr;
-    // TODO 4: iterate through getopt_long()
-    // TODO: delegate to submethod
+    int argc = args.size();
+    char *argv[argc];
+    for (int i=0; i<argc; i++) { // transscribe args to argv
+        argv[i]=CS(args.at(i).c_str());
+    }
+    int index;
+    auto is_parsing = true;
+    optind = 0; // hard reset getopt library
+    while (is_parsing) {
+        int ch_num = getopt_long(argc, argv, shortopts_.c_str(), longopts_, &index);
+        switch (ch_num) {
+            case -1:
+                is_parsing = false;
+                break;
+            case 0:
+                throw std::runtime_error("Option::Parser: autoflag not allowed");
+                break;
+            case '?':
+                cout << "unknown command line option" << endl;
+                cout << "try: " << appname_ << "  --help" << endl;
+                cleanupGnuInterface();
+                return FAIL;
+            default:
+                char ch(ch_num);
+                const Record * rec_p = findRecordByFlag(ch);
+                if (!rec_p) throw std::runtime_error("Option::Parser: flag not found");
+                const string value(optarg ? optarg : "1");
+                rec_p->getValue().setValue(value, rec_p->getFlags());
+        }
+    }
     // cleanup
     cleanupGnuInterface();
+    return OK;
 }
 //}}}
 void Option::Parser::on // {{{
@@ -158,29 +246,55 @@ void Option::Parser::on // {{{
 {
     opts_.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, value_p)));
 }
-void Option::Parser::on // {{{
-    (char o_short, char const *o_long, bool *value, bool def_value,
+
+void Option::Parser::on
+    (char o_short, char const *o_long, bool *value, 
      char const *description)
 {
-    auto oval = new Option::Value<bool>(value, def_value);
+    auto oval = new Option::Value<bool>(value, false);
     auto of = Option::Flags::BOOLEAN;
     opts_.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
 //}}}
-TEST_F(AppFixtureBase, options) {
-    Option::Parser op;
-    unsigned int dmask(56u);
-    bool verbose(true);
-    string config_file_name("wurscht");
-    op.on ('v', "verbose", &verbose, false, "verbose output");
-    op.on ('c', "config", new Option::Value<string>(&config_file_name, "./x.ini"), "configfile name");
-    op.on ('d', "debug", new Option::Value<unsigned int>(&dmask, 2204u), "debugging mask");
 
-    op.parse(vector<string>({CS("egal"), CS("-v"), CS("-d"), CS("23") }));
+class OptionParserFixture : public AppFixtureBase {
+    protected:
+        Option::Parser *op;
+        unsigned int dmask;
+        string config_file_name;
+        bool verbose;
+        virtual void SetUp() {
+            AppFixtureBase::SetUp();
+            verbose = true;
+            dmask = 1234u;
+            config_file_name = "totalegal";
+            op = new Option::Parser("cpp", "nothing");
+            op->on ('v', "verbose", &verbose, "verbose output");
+            op->on ('c', "config", new Option::Value<string>(&config_file_name, "./x.ini"), "configfile name");
+            op->on ('d', "debug", new Option::Value<unsigned int>(&dmask, 7u), "debugging mask");
+        }
+        virtual void TearDown() {
+            delete op;
+            op = nullptr;
+            AppFixtureBase::TearDown();
+        }
+};
 
+TEST_F(OptionParserFixture, TestOptionSetter) {
+    op->parse(vector<string>({ CS("egal") }));
     EXPECT_EQ(verbose, false);
-    EXPECT_EQ(dmask, 2204u);
+    EXPECT_EQ(dmask, 7u);
     EXPECT_STREQ(config_file_name.c_str(), "./x.ini");
+    op->parse(vector<string>({CS("egal"), CS("-v"), CS("-d"), CS("23") }));
+    EXPECT_EQ(verbose, true);
+    EXPECT_EQ(dmask, 23u);
+    EXPECT_STREQ(config_file_name.c_str(), "./x.ini");
+    // TODO: string set implementieren
+    // TODO: showHelp testen: Job für Integrationstest, wenn App den Parser treibt?
+}
+
+TEST_F(OptionParserFixture, TestHelpViewer) {
+    op->showHelp(cerr); // TODO: umleiten in Stringstream, dann abfischen
 }
 
 
