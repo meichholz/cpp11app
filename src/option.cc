@@ -20,22 +20,22 @@
 
 // TODO: callback functions
 
-// specialize Value functions {{{
+// specialized Value functions {{{
 // http://www.cprogramming.com/tutorial/template_specialization.html
 namespace Option { // must take place within namespace
     template<>
-        void Value<string>::setValue(string arg, Flags flags)
+        void Value<string>::set(string arg, Flags flags)
         {
-            *(val_.first) = arg;
+            *(d_val.first) = arg;
         }
 }
 // }}}
 // {{{ Parser ctor stuff
 Option::Parser::Parser(string appname, string argspec) :
-    longopts_(nullptr),
-    shortopts_(""),
-    appname_(appname),
-    argspec_(argspec)
+    d_longopts(nullptr),
+    d_shortopts(""),
+    d_appname(appname),
+    d_argspec(argspec)
 { }
 
 Option::Parser::~Parser() {
@@ -44,53 +44,53 @@ Option::Parser::~Parser() {
 // }}}
 void Option::Parser::setupGnuInterface() //{{{
 {
-    auto c_opts=opts_.size();
-    longopts_ = new struct option [c_opts+1];
-    shortopts_ = "";
+    auto c_opts=d_opts.size();
+    d_longopts = new struct option [c_opts+1];
+    d_shortopts = "";
     // zero the last record explicitly
-    longopts_[c_opts].name = nullptr;
-    longopts_[c_opts].flag = nullptr;
-    longopts_[c_opts].val = longopts_[c_opts].has_arg = 0;
+    d_longopts[c_opts].name = nullptr;
+    d_longopts[c_opts].flag = nullptr;
+    d_longopts[c_opts].val = d_longopts[c_opts].has_arg = 0;
     for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
     {
-        auto rec=opts_[i].get(); // get the object ptr behind
-        longopts_[i].name = rec->getLongName().c_str();
-        longopts_[i].val = rec->getShortName();
-        longopts_[i].flag = NULL; // use value and compatibility layer
-        shortopts_.push_back(rec->getShortName());
+        auto rec=d_opts[i].get(); // get the object ptr behind
+        d_longopts[i].name = rec->longName().c_str();
+        d_longopts[i].val = rec->shortName();
+        d_longopts[i].flag = NULL; // use value and compatibility layer
+        d_shortopts.push_back(rec->shortName());
         if (rec->hasArgument())
         {
-            shortopts_.push_back(':');
-            longopts_[i].has_arg = required_argument;
+            d_shortopts.push_back(':');
+            d_longopts[i].has_arg = required_argument;
         }
         else
         {
-            longopts_[i].has_arg = no_argument;
+            d_longopts[i].has_arg = no_argument;
         }
-        rec->getValue().setDefault();
+        rec->value().useDefault();
     }
     // cout << "short options: " << shortopts_ << endl;
 }
 // }}}
 void Option::Parser::cleanupGnuInterface() // {{{
 {
-    delete [] longopts_;
-    longopts_ = nullptr;
+    delete [] d_longopts;
+    d_longopts = nullptr;
 }
 
 //}}}
 void Option::Parser::showHelp(std::ostream &os) // {{{
 {
-    os << "usage: " << appname_ << " {OPTION} " << argspec_ << endl << endl;
+    os << "usage: " << d_appname << " {OPTION} " << d_argspec << endl << endl;
     os << "OPTION may be:" << endl;
-    auto c_opts = opts_.size();
+    auto c_opts = d_opts.size();
     for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
     {
-        auto rec=opts_[i].get(); // get the object ptr behind
-        os << "\t-" << rec->getShortName() << "/--"  << rec->getLongName()
-            << "\t: " << rec->getDescription();
+        auto rec=d_opts[i].get(); // get the object ptr behind
+        os << "\t-" << rec->shortName() << "/--"  << rec->longName()
+            << "\t: " << rec->description();
         if (rec->hasArgument()) {
-          os << " [" << rec->getValue().getDefault() << "]";
+          os << " [" << rec->value().defaultValue() << "]";
         }
         os << endl;
     }
@@ -98,11 +98,11 @@ void Option::Parser::showHelp(std::ostream &os) // {{{
 // }}}
 const Option::Record *Option::Parser::findRecordByFlag(char oflag) // {{{
 {
-    auto c_opts = opts_.size();
+    auto c_opts = d_opts.size();
     for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
     {
-        auto rec=opts_[i].get(); // get the object ptr behind
-        if (rec->getShortName() == oflag)
+        auto rec=d_opts[i].get(); // get the object ptr behind
+        if (rec->shortName() == oflag)
             return rec;
     }
     return nullptr;
@@ -120,7 +120,7 @@ int Option::Parser::parse(vector<string> args) //{{{
     auto is_parsing = true;
     optind = 0; // hard reset getopt library
     while (is_parsing) {
-        int ch_num = getopt_long(argc, argv, shortopts_.c_str(), longopts_, &index);
+        int ch_num = getopt_long(argc, argv, d_shortopts.c_str(), d_longopts, &index);
         switch (ch_num) {
             case -1:
                 is_parsing = false;
@@ -130,7 +130,7 @@ int Option::Parser::parse(vector<string> args) //{{{
                 break;
             case '?':
                 cout << "unknown command line option" << endl;
-                cout << "try: " << appname_ << "  --help" << endl;
+                cout << "try: " << d_appname << "  --help" << endl;
                 cleanupGnuInterface();
                 return FAIL;
             default:
@@ -138,7 +138,7 @@ int Option::Parser::parse(vector<string> args) //{{{
                 const Record * rec_p = findRecordByFlag(ch);
                 if (!rec_p) throw std::runtime_error("Option::Parser: flag not found");
                 const string value(optarg ? optarg : "1");
-                rec_p->getValue().setValue(value, rec_p->getFlags());
+                rec_p->value().set(value, rec_p->flags());
         }
     }
     // cleanup
@@ -151,7 +151,7 @@ void Option::Parser::on // {{{
      ValueBase *value_p,
      char const *description, Flags of)
 {
-    opts_.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, value_p)));
+    d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, value_p)));
 }
 
 void Option::Parser::on
@@ -160,7 +160,7 @@ void Option::Parser::on
 {
     auto oval = new Option::Value<bool>(value, false);
     auto of = Option::Flags::BOOLEAN;
-    opts_.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
+    d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
 //}}}
 

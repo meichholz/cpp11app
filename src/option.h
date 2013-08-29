@@ -34,28 +34,28 @@ namespace Option {
         public:
             virtual ~ValueBase() {}
             virtual ValueBase *clone() = 0;
-            virtual void setDefault() = 0;
-            virtual const string getDefault() = 0;
-            virtual void setValue(string arg, Flags flags) = 0;
+            virtual void useDefault() = 0;
+            virtual const string defaultValue() const = 0;
+            virtual void set(string arg, Flags flags) = 0;
     };
 
     template <class T>
         class Value : public ValueBase {
             private:
-                std::pair<T*, T> val_; // varptr, defval
+                std::pair<T*, T> d_val; // varptr, defval
             public:
                 // constructors
-                Value(T *var_p, T def_value) { val_ = std::make_pair(var_p, def_value); }
-                Value(Value<T> *o) { val_ = o->val_; }
+                Value(T *var_p, T def_value) { d_val = std::make_pair(var_p, def_value); }
+                Value(Value<T> *o) { d_val = o->d_val; }
                 virtual ~Value() { }
                 virtual Value<T> *clone() { return new Value<T>(this); }
-                virtual void setDefault() { *(val_.first) = val_.second; }
-                virtual const string getDefault() { return std::to_string(val_.second); }
-                virtual void setValue(string arg, Flags flags);
+                virtual void useDefault() { *(d_val.first) = d_val.second; }
+                virtual const string defaultValue() const { return std::to_string(d_val.second); }
+                virtual void set(string arg, Flags flags);
         };
 
 template <class T>
-void Value<T>::setValue(string arg, Flags flags)
+void Value<T>::set(string arg, Flags flags)
 {
     std::istringstream argstream(arg);
     T result;
@@ -63,41 +63,47 @@ void Value<T>::setValue(string arg, Flags flags)
     conversion = std::dec; // TODO: find conversion based on flags
     bool failed = (argstream >> conversion >> result).fail();
     if (failed) throw std::runtime_error(string("Option::Parser: cannot convert ")+arg);
-    *(val_.first) = result;
+    *(d_val.first) = result;
 }
 // }}}
     class Record { // {{{
         private:
-            ValueBase *value_p_;
-            Flags flags_;
-            char shortflag_;
-            string longflag_;
-            string  description_;
+            ValueBase *d_pvalue;
+            Flags d_flags;
+            char d_shortflag;
+            string d_longflag;
+            string  d_description;
         public:
             // constructors
-            Record(char shortflag, string longflag, string description, Flags flags, ValueBase *value_p) : 
-                value_p_(value_p),
-                flags_(flags),
-                shortflag_(shortflag),
-                longflag_(longflag),
-                description_(description)
+            Record(char shortflag, string longflag, string description, Flags flags, ValueBase *pvalue) : 
+                d_pvalue(pvalue),
+                d_flags(flags),
+                d_shortflag(shortflag),
+                d_longflag(longflag),
+                d_description(description)
                 {}
-            virtual ~Record() { delete value_p_; }
+            virtual ~Record() { delete d_pvalue; }
             // accessors
-            char getShortName() const { return shortflag_; }
-            const string & getLongName() const { return longflag_; }
-            virtual const string & getDescription() const { return description_; }
-            virtual Flags getFlags() const { return flags_; }
-            ValueBase & getValue() const { return *value_p_; }
+            char shortName() const { return d_shortflag; }
+            const string & longName() const { return d_longflag; }
+            virtual const string & description() const { return d_description; }
+            virtual Flags flags() const { return d_flags; }
+            ValueBase & value() const { return *d_pvalue; }
             // utility
             virtual bool hasArgument() const {
-               return !((int)(flags_) & (int)(Option::Flags::BOOLEAN) );
+               return !((int)(d_flags) & (int)(Option::Flags::BOOLEAN) );
             }
     };
 
 
     // }}}
     class Parser { // {{{
+        private:
+            vector<unique_ptr<Record>> d_opts; // will safely destroy record objects
+            struct option *d_longopts; // man 3 getopt_long
+            string d_shortopts;
+            string d_appname;
+            string d_argspec;
         public:
             Parser(string appname="program", string argspec="");
             virtual ~Parser();
@@ -110,11 +116,6 @@ void Value<T>::setValue(string arg, Flags flags)
             virtual int parse(vector<string> args);
             virtual void showHelp(std::ostream &os = cout);
         private:
-            vector<unique_ptr<Record>> opts_; // will safely destroy record objects
-            struct option *longopts_; // man 3 getopt_long
-            string shortopts_;
-            string appname_;
-            string argspec_;
             void setupGnuInterface();
             void cleanupGnuInterface();
             const Record *findRecordByFlag(char oflag);

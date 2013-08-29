@@ -22,11 +22,11 @@ App * theApp = nullptr;
 
 static class {
     private:
-        vector<unique_ptr<string>> gs;
+        vector<unique_ptr<string>> d_gs;
     public:
         char *reg(const char *cstr, size_t len) {
             auto snew = new string(cstr,len);
-            gs.push_back(unique_ptr<string>(snew));
+            d_gs.push_back(unique_ptr<string>(snew));
             return const_cast<char*>(snew->c_str());
         }
 } keeper; // starts BEFORE everything, and ends AFTER everything, effectively freeing up all ressources.
@@ -40,7 +40,7 @@ char * operator "" _cs(const char *cstr, size_t len)
 }
 
 namespace std {
-    string to_string(string &s)
+    string to_string(const string &s)
     {
         return s;
     }

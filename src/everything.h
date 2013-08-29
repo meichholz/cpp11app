@@ -49,7 +49,7 @@ typedef enum { OK, FAIL } t_rc;
 
 // goodies in globals.cc
 namespace std {
-    string to_string(string &s);
+    string to_string(const string &s);
 }
 
 char * operator "" _cs(const char *cstr, size_t len);
