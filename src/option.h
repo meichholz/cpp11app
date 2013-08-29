@@ -39,7 +39,7 @@ namespace Option {
             virtual void setValue(string arg, Flags flags) = 0;
     };
 
-    template <typename T>
+    template <class T>
         class Value : public ValueBase {
             private:
                 std::pair<T*, T> val_; // varptr, defval
@@ -54,7 +54,7 @@ namespace Option {
                 virtual void setValue(string arg, Flags flags);
         };
 
-template <typename T>
+template <class T>
 void Value<T>::setValue(string arg, Flags flags)
 {
     std::istringstream argstream(arg);
@@ -65,8 +65,7 @@ void Value<T>::setValue(string arg, Flags flags)
     if (failed) throw std::runtime_error(string("Option::Parser: cannot convert ")+arg);
     *(val_.first) = result;
 }
-
-    // }}}
+// }}}
     class Record { // {{{
         private:
             ValueBase *value_p_;

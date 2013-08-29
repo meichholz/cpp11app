@@ -19,12 +19,13 @@
 #define EVERYTHING_H
 
 // system header
-#include <iostream>
 #include <cmath>
 #include <vector>
 #include <stdexcept>
 #include <initializer_list>
 #include <utility>
+#include <iostream>
+#include <sstream>
 #include <boost/regex.hpp>
 
 extern "C" {
@@ -36,6 +37,8 @@ using std::cin;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::ios;
+using std::ostringstream;
 using std::vector;
 using std::string;
 using std::initializer_list;

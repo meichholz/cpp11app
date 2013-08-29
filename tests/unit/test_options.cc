@@ -4,6 +4,8 @@
 //  http://code.google.com/p/googletest/wiki/AdvancedGuide#Explicit_Success_and_Failure
 // http://www.cplusplus.com/reference/string/string/
 
+using namespace testing; // for google mock and so on
+
 class OptionParserFixture : public AppFixtureBase { // {{{
     protected:
         Option::Parser *op;
@@ -32,16 +34,17 @@ TEST_F(OptionParserFixture, TestOptionSetter) {
     EXPECT_EQ(verbose, false);
     EXPECT_EQ(dmask, 7u);
     EXPECT_STREQ(config_file_name.c_str(), "./x.ini");
-    op->parse(vector<string>({ "egal"_cs, "-v"_cs, "-d"_cs, "23"_cs }));
+    op->parse(vector<string>({ "egal"_cs, "--verbose"_cs, "-d"_cs, "23"_cs, "--config=frob"_cs }));
     EXPECT_EQ(verbose, true);
     EXPECT_EQ(dmask, 23u);
-    EXPECT_STREQ(config_file_name.c_str(), "./x.ini");
-    // TODO: string set implementieren
-    // TODO: showHelp testen: Job für Integrationstest, wenn App den Parser treibt?
+    EXPECT_STREQ(config_file_name.c_str(), "frob");
 }
 
 TEST_F(OptionParserFixture, TestHelpViewer) {
-    op->showHelp(cerr); // TODO: umleiten in Stringstream, dann abfischen
+    ostringstream os;
+    op->showHelp(os);
+    EXPECT_THAT(os.str(), HasSubstr("{OPTION}"));
+    EXPECT_THAT(os.str(), HasSubstr("-v/--verbose"));
 }
 
 

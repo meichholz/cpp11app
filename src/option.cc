@@ -20,7 +20,17 @@
 
 // TODO: callback functions
 
-// {{{ ctor stuff
+// specialize Value functions {{{
+// http://www.cprogramming.com/tutorial/template_specialization.html
+namespace Option { // must take place within namespace
+    template<>
+        void Value<string>::setValue(string arg, Flags flags)
+        {
+            *(val_.first) = arg;
+        }
+}
+// }}}
+// {{{ Parser ctor stuff
 Option::Parser::Parser(string appname, string argspec) :
     longopts_(nullptr),
     shortopts_(""),
