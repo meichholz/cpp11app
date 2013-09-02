@@ -45,7 +45,8 @@ namespace Option {
                 std::pair<T*, T> d_val; // varptr, defval
             public:
                 // constructors
-                Value(T *var_p, T def_value) { d_val = std::make_pair(var_p, def_value); }
+                Value(T *var_p, T & def_value) {  d_val = std::make_pair(var_p, def_value); }
+                Value(T *var_p, T && def_value) {  d_val = std::make_pair(var_p, std::move(def_value)); }
                 Value(Value<T> *o) { d_val = o->d_val; }
                 virtual ~Value() { }
                 virtual Value<T> *clone() { return new Value<T>(this); }
@@ -108,8 +109,12 @@ void Value<T>::set(string arg, Flags flags)
             Parser(string appname="program", string argspec="");
             virtual ~Parser();
             virtual void on (char o_short, char const *o_long,
-                    bool * value, 
+                    bool & value, 
                     char const *description="");
+            template<typename T>
+            void on (char o_short, char const *o_long,
+                    T & value, T && def_value,
+                    char const *description="", Flags of=Flags::DEFAULT);
             virtual void on (char o_short, char const *o_long,
                     ValueBase *value_p,
                     char const *description="", Flags of=Flags::DEFAULT);
@@ -121,6 +126,16 @@ void Value<T>::set(string arg, Flags flags)
             const Record *findRecordByFlag(char oflag);
     };
     // }}}
+
+template <typename T>
+void Parser::on (char o_short, char const *o_long,
+        T & value, T && def_value,
+        char const *description, Flags of)
+{
+    auto oval = new Value<T>(&value, def_value);
+    d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
+}
+
 } // namespace
 
 #endif

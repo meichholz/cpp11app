@@ -155,10 +155,11 @@ void Option::Parser::on // {{{
 }
 
 void Option::Parser::on
-    (char o_short, char const *o_long, bool *value, 
+    (char o_short, char const *o_long,
+     bool &value, 
      char const *description)
 {
-    auto oval = new Option::Value<bool>(value, false);
+    auto oval = new Option::Value<bool>(&value, false);
     auto of = Option::Flags::BOOLEAN;
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }

@@ -18,9 +18,12 @@ class OptionParserFixture : public AppFixtureBase { // {{{
             dmask = 1234u;
             config_file_name = "totalegal";
             op = new Option::Parser("cpp", "nothing");
-            op->on ('v', "verbose", &verbose, "verbose output");
+            // type one: simple bool
+            op->on ('v', "verbose", verbose, "verbose output");
+            // type two: templated function w/default ref and rvalue
+            op->on<unsigned int>('d', "debug", dmask, 7u, "debugging mask");
+            // type three: with Option::Value<T>
             op->on ('c', "config", new Option::Value<string>(&config_file_name, "./x.ini"), "configfile name");
-            op->on ('d', "debug", new Option::Value<unsigned int>(&dmask, 7u), "debugging mask");
         }
         virtual void TearDown() {
             delete op;
