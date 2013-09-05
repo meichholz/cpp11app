@@ -6,5 +6,5 @@ Feature: program runs showcase
 
   Scenario: showcase runs
     When I start with --testrun=showcase
-    Then I should see testing "marian: is matching."
+    Then I should see "testing marian: is matching."
 

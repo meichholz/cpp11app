@@ -1,8 +1,9 @@
-When /^I start with \-\-testrun=showcase$/ do
-  pending # express the regexp above with the code you wish you had
+When /^I start with (\-\S+)$/ do |opt|
+  @args=opt
 end
 
-Then /^I should see testing "(.*?)"$/ do |arg1|
-  pending # express the regexp above with the code you wish you had
+Then /^I should see "(.*?)"$/ do |arg1|
+  start_app @args
+  @stdout.should =~ /#{arg1}/
 end
 
