@@ -23,5 +23,8 @@ task :grindcheck => :build do
   sh "valgrind --leak-check=full --show-reachable=yes build_dir/tests/unit/test_main"
 end
 
-
+desc "run cucumber"
+task :cuke => :build do
+  sh "cucumber tests/features"
+end
 
