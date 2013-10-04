@@ -1,0 +1,3 @@
+# in currect cmake you can pass no parameter to the custom post/pre test
+# so we resort to a helper program
+set(CTEST_CUSTOM_POST_TEST "@CMAKE_SOURCE_DIR@/tests/showlog")

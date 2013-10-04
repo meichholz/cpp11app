@@ -1,0 +1,13 @@
+message ("Cmaking gtest")
+include_directories ("${GTEST_DIR}/include")
+include_directories ("${GMOCK_DIR}/include")
+set (GtestAllSources "${GTEST_DIR}/src/gtest-all.cc")
+set (GtestMainSources "${GTEST_DIR}/src/gtest_main.cc")
+set (GmockAllSources "${GMOCK_DIR}/src/gmock-all.cc")
+set_source_files_properties(${GtestAllSources} PROPERTIES COMPILE_FLAGS "-I${GTEST_DIR}")
+set_source_files_properties(${GtestMainSources} PROPERTIES COMPILE_FLAGS "-I${GTEST_DIR}")
+set_source_files_properties(${GmockAllSources} PROPERTIES COMPILE_FLAGS "-I${GMOCK_DIR}")
+add_library (gtest ${GtestAllSources})
+add_library (gtest_main ${GtestMainSources})
+add_library (gmock ${GmockAllSources})
+
