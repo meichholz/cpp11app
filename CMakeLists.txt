@@ -18,8 +18,8 @@ find_package( Boost 1.49.0 COMPONENTS regex )
 # boost consequences in local CMakeLists
 
 # some automated testing should do fine
-set (GTEST_DIR "/usr/src/gtest-1.6.0" CACHE STRING "source base directory of google test framework")
-set (GMOCK_DIR "/usr/src/gmock-1.6.0" CACHE STRING "source base directory of google mock framework")
+set (GTEST_DIR "${CMAKE_SOURCE_DIR}/googletest/gtest-1.6.0" CACHE STRING "source base directory of google test framework")
+set (GMOCK_DIR "${CMAKE_SOURCE_DIR}/googletest/gmock-1.6.0" CACHE STRING "source base directory of google mock framework")
 # subdirectories and -projects
 add_subdirectory (src)
 add_subdirectory (gtest)

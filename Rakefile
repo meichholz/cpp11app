@@ -16,7 +16,7 @@ end
 @run_arguments = "--testrun=showcase"
 @editfiles = FileList.new(["README.ROADMAP", "**/test_*.cc"])
 
-load "../../lib/tasks/cmake.rake"
+load "devsupport/tasks/cmake.rake"
 
 desc "send test suite through valgrind"
 task :grindcheck => :build do

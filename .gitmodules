@@ -1,0 +1,6 @@
+[submodule "devsupport"]
+	path = devsupport
+	url = ssh://giles.bugslayer.de/srv/git/projects/devsupport
+[submodule "googletest"]
+	path = googletest
+	url = ssh://giles.bugslayer.de/srv/git/support/googletest
