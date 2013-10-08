@@ -2,9 +2,9 @@ project (cppeleven)
 
 cmake_minimum_required (VERSION 2.6)
 enable_testing ()
-message("Cmaking root")
+message("-- cmaking root")
 # set/add compiler definitions FOR ALL TARGETS
-add_definitions( "-Wall -Werror -std=c++0x -O2 -D_GLIBC_USE_NANOSLEEP" )
+add_definitions( "-Wall -Werror -std=c++0x -D_GLIBC_USE_NANOSLEEP" )
 set (MAJOR_VERSION "0")
 set (MINOR_VERSION "0")
 set (PATCH_VERSION "1")
@@ -17,13 +17,29 @@ set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package( Boost 1.49.0 COMPONENTS regex )
 # boost consequences in local CMakeLists
 
+set (DEBUG OFF CACHE BOOL "build instrumented code for gcov or profiling")
 # some automated testing should do fine
 set (GTEST_DIR "${CMAKE_SOURCE_DIR}/googletest/gtest-1.6.0" CACHE STRING "source base directory of google test framework")
-set (GMOCK_DIR "${CMAKE_SOURCE_DIR}/googletest/gmock-1.6.0" CACHE STRING "source base directory of google mock framework")
+set (GMOCK_DIR "${CMAKE_SOURCE_DIR}/googletest/gmock-1.6.0" CACHE STRING
+	"source base directory of google mock framework")
+
+if (DEBUG)
+        message("-- building with tests and coverage support")
+        set (Debug_DEFINITIONS "-fprofile-arcs -ftest-coverage")
+        add_definitions( "-O0 -fPIC")
+        set (Debug_LIBRARIES "gcov")
+else (DEBUG)
+        add_definitions( "-O0")
+        set (Debug_LIBRARIES "")
+endif (DEBUG)
+
+
 # subdirectories and -projects
 add_subdirectory (src)
-add_subdirectory (gtest)
-add_subdirectory (tests)
+if (DEBUG)
+        add_subdirectory (gtest)
+        add_subdirectory (tests)
+endif (DEBUG)
 configure_file(config.h.in config.h)
 # testing: force output of (failing) test program
 configure_file(CTestCustom.ctest.in CTestCustom.ctest)

@@ -1,6 +1,7 @@
 ENV["LANG"]="C"
 
 # auto-detect maximum c compiler
+# TODO: should go to cmake.rake as well
 [
 #  "4.8.1",
   "4.7.3", "4.7.2",
@@ -10,6 +11,7 @@ ENV["LANG"]="C"
     # puts "setting gcc-#{ver} as preferred compiler"
     ENV["CXX"]="g++-#{ver}"
     ENV["CC"]="gcc-#{ver}"
+    ENV["GCOV"]="gcov-#{ver}"
     break
   end
 end
@@ -18,13 +20,5 @@ end
 
 load "devsupport/tasks/cmake.rake"
 
-desc "send test suite through valgrind"
-task :grindcheck => :build do
-  sh "valgrind --leak-check=full --show-reachable=yes build_dir/tests/unit/test_main"
-end
-
-desc "run cucumber"
-task :cuke => :build do
-  sh "cucumber tests/features"
-end
+@cmake_options += " -DDEBUG=ON"
 
