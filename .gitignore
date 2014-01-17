@@ -1,4 +1,4 @@
 tags
 *.out
-build_dir
-
+/build_dir
+/doxygen

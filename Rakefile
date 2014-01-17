@@ -22,3 +22,19 @@ load "devsupport/tasks/cmake.rake"
 
 @cmake_options += " -DDEBUG=ON"
 
+# TODO: Put this to CMake by any means
+namespace :doc do
+  desc "build doxygen documentation"
+  task :doxygen do
+    FileUtils.rm_rf 'doxygen' if File.exists? 'doxygen'
+    FileUtils.mkdir 'doxygen'
+    sh "doxygen"
+    puts "now reload Your brower, or point it to"
+    puts "file:///home/marian/pm-git/software/mguardd/trunk/doxygen/html/index.html"
+    puts "doxygen/html/index.html"
+  end
+
+  desc "build all documentation for jenkins"
+  task :all => [ :doxygen ]
+end
+

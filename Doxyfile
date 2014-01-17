@@ -1,0 +1,39 @@
+# see http://www.bluequartz.net/projects/EIM_Segmentation/SoftwareDocumentation/html/exampledoxyfile.html
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = CPP11
+OUTPUT_DIRECTORY       = doxygen
+CREATE_SUBDIRS         = YES
+OUTPUT_LANGUAGE        = English
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+INPUT                  = src
+STRIP_FROM_PATH        = src
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.c  *.cc  *.cxx  *.cpp  *.c++ \
+                         *.h  *.hh  *.hxx  *.hpp  *.h++
+ALPHABETICAL_INDEX     = YES
+GENERATE_HTML          = YES
+GENERATE_TREEVIEW      = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            = 
+HTML_FOOTER            = 
+DISABLE_INDEX          = NO
+QUIET                  = YES
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_FORMAT            = "$file:$line: $text"
+GENERATE_TODOLIST      = YES
+GENERATE_TESTLIST      = YES
+GENERATE_BUGLIST       = YES
+GENERATE_DEPRECATEDLIST= YES
+MAX_INITIALIZER_LINES  = 30
+SHOW_USED_FILES        = YES
+
