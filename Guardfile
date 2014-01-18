@@ -3,13 +3,14 @@
 
 # all_on_start is problematic
 guard :shell do
-#  watch(%r{/src/.*\.(cc|h)$}) do |m|
-  watch "src/README.h" do |m|
-    n m[0], "file changed"
-    # puts m[0], ": file has changed"
-    `rake doc:all`
+  watch(%r{/src/.*\.(cc|h)$}) do |m|
+    n m[0], "changed"
+    p m
   end
 end
 
+#guard :rake, :task => 'doc:all' do
+#  watch(%r{/src/.*\.(cc|h)$})
+#end
 # livereload could be fine
 
