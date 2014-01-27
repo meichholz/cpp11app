@@ -19,8 +19,8 @@ find_package( Boost 1.49.0 COMPONENTS regex )
 
 set (DEBUG OFF CACHE BOOL "build instrumented code for gcov or profiling")
 # some automated testing should do fine
-set (GTEST_DIR "${CMAKE_SOURCE_DIR}/googletest/gtest-1.6.0" CACHE STRING "source base directory of google test framework")
-set (GMOCK_DIR "${CMAKE_SOURCE_DIR}/googletest/gmock-1.6.0" CACHE STRING
+set (GTEST_DIR "${CMAKE_SOURCE_DIR}/googletest/gtest-1.7.0" CACHE STRING "source base directory of google test framework")
+set (GMOCK_DIR "${CMAKE_SOURCE_DIR}/googletest/gmock-1.7.0" CACHE STRING
 	"source base directory of google mock framework")
 
 if (DEBUG)
