@@ -1,0 +1,14 @@
+{
+  "*": {"make": ["rake", "-f", "{project}/Rakefile"]},
+  "src/*.cc": {"type": "code",
+          "alternate": "src/{}.h" },
+  "src/*.h": {"type": "header",
+        "alternate": "src/{}.cc"},
+  "tests/unit/test_*.cc": {"type": "unit",
+        "alternate": "src/{}.cc" },
+  "tests/features/*.feature": { "type": "feature" },
+  "tests/features/step_definitions/*.rb": { "type": "step" },
+  "tests/features/support/*.rb": { "type": "support" }
+
+}
+

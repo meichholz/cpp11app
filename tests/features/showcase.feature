@@ -4,7 +4,7 @@ Feature: program runs showcase
   As a developer of the code
   I want a mode to show the showcase
 
-  Scenario: showcase runs
+	Scenario: showcase runs
     When I start with --testrun=showcase
     Then I should see "testing marian: is matching."
 
