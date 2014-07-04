@@ -1,6 +1,6 @@
 ENV["LANG"]="C"
+load "devsupport/tasks/setup.rb"
 
-load 'devsupport/tasks/setup.rb'
 ds_tasks_for :cmake
 
 ds_configure do |c|
