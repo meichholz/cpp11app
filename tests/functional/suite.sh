@@ -28,7 +28,7 @@ setUp()
 	fi
 }
 
-test_usage()
+rem_test_usage()
 {
 	assertMatches "does not greet" "$SUT -h" 'cppeleven'
 	assertMatches "shows no version" "$SUT -V" 'version [0-9]'
