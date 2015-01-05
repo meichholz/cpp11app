@@ -17,6 +17,8 @@ main (int argc, char **argv)
             Showcase showcase;
             showcase.run();
             showcase.throw_simple();
+        } else {
+            ::theApp->run(); // standard procedure: fire and forget
         }
     }
   catch (exception& e)
