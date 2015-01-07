@@ -27,6 +27,8 @@ namespace Option {
         FLOAT = 8,
         OPTIONAL = 16,
         BOOLEAN = 32,
+        STRING  = 64,
+        FILENAME = 128,
         DEFAULT = DECIMAL,
     };
     // }}}
@@ -108,16 +110,26 @@ void Value<T>::set(string arg, Flags flags)
         public:
             Parser(string appname="program", string argspec="");
             virtual ~Parser();
+            // for booleans
             virtual void on (char o_short, char const *o_long,
                     bool & value, 
                     char const *description="");
+            // for strings
+            virtual void on (char o_short, char const *o_long,
+                    string &value, char const *def_value,
+                    char const *description="",
+                    Flags of=Flags::STRING);
+            // for ValueBase objects
+            virtual void on (char o_short, char const *o_long,
+                    ValueBase *value_p,
+                    char const *description="",
+                    Flags of=Flags::DEFAULT);
+            // generic on demand version for templatable Values
             template<typename T>
             void on (char o_short, char const *o_long,
                     T & value, T && def_value,
-                    char const *description="", Flags of=Flags::DEFAULT);
-            virtual void on (char o_short, char const *o_long,
-                    ValueBase *value_p,
-                    char const *description="", Flags of=Flags::DEFAULT);
+                    char const *description="",
+                    Flags of=Flags::DEFAULT);
             virtual int parse(vector<string> args);
             virtual void showHelp(std::ostream &os = cout);
         private:

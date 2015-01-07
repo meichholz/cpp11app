@@ -163,6 +163,17 @@ void Option::Parser::on
     auto of = Option::Flags::BOOLEAN;
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
+
+// for string, default cstring
+void Option::Parser::on (
+     char o_short, char const *o_long,
+     string &value,
+     const char *def_value,
+     char const *description,
+     Option::Flags of ) {
+    auto oval = new Option::Value<string>(&value, def_value);
+    d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
+}
 //}}}
 
 

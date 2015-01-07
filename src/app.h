@@ -14,16 +14,20 @@ enum AppMode {
 
 class App {
     public:
+        App();
         App(int argc, char **argv);
         App(initializer_list<char*> argv);
         ~App();
         const char * const getGreeter();
         // debugging
         void showArguments();
-        void run();
+        int  run();
 
     private:
-        vector<string> *d_commandline_arguments;
+        vector<string>* d_commandline_arguments;
+        string          config_filename;
+        unsigned int    dmask;
+        bool            verbose;
 
     protected:
         AppMode setup(Option::Parser& parser);

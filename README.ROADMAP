@@ -1,4 +1,4 @@
-<!-- run the tests by hitting F11 in Vim -->
+<!-- run the tests by hitting F11 or (even better) F10 followed by F6 in Vim -->
 
 - Optionsannahme fertigstellen
 - Optionsannahme in reguläres Modul ausfaktorisieren
