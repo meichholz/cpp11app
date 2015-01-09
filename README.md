@@ -13,10 +13,10 @@ It integrates and showcases (to ... erm ... at least some extent) some tools to 
 - Cucumber (preferred)
 - shunit2 (fallback, rather brittle)
 - Vim sporting a bunch of helping modules suggested, like
-- - c-support (the very original)
-- - Vim-Projectionist
-- - [my https://github.com/meichholz/devsupport.git](devsupport) wiring
-- - [my dotvim wiring](https://github.com/meichholz/dotvim.git)
+  - c-support (the very original)
+  - Vim-Projectionist
+  - [my https://github.com/meichholz/devsupport.git](devsupport) wiring
+  - [my dotvim wiring](https://github.com/meichholz/dotvim.git)
 - Rake master control by [my devsupport](https://github.com/meichholz/devsupport.git).
 
 Whoa, that's a lot of tools, aren't they?
@@ -25,7 +25,7 @@ Whoa, that's a lot of tools, aren't they?
 
 Then You `git submodule init` and `git submodule update` to check the stuff out.
 
-Get the google test frameworks manually (into `googletest`) or by *Rake*:
+Get the google test frameworks manually (into *googletest/*) or by *Rake*:
 
     rake pull:gtest
 
@@ -46,7 +46,9 @@ Note, that You can do the `rake check` part with some C support in Vim by
 simply pressing *F11* or even better: *F10* with quicklist access to the
 defecting lines.
 
-The test suites do some filtering and formatting to allow for just that: To navigate from an error reported by the Non-C-Frontend into the defective Source area by just hitting *Enter*.
+The test suites do some filtering and formatting to allow for just that: To
+navigate from an error reported by the non-C frontend into the defective source
+area by just hitting *Enter*.
 
 And that is the BDD/TDD-Cycle: **Make it red! Make it green! Refactor!**
 
