@@ -12,5 +12,6 @@ add_test (MainTest test_main)
 add_definitions("${Debug_DEFINITIONS} -DUSE_GTEST_MAIN")
 
 target_link_libraries (test_main app gtest gtest_main gmock pthread
-	${Debug_LIBRARIES})
+    ${Boost_LIBRARIES}
+    ${Debug_LIBRARIES})
 

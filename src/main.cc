@@ -11,15 +11,7 @@ main (int argc, char **argv) {
     int exit_code = 0;
     try {
         ::theApp = new App(argc, argv);
-        if (argc==2 && string("--testrun=showcase")==argv[1]) {
-            ::theApp->showArguments();
-            /* provisorial shortcut to showcase */
-            Showcase showcase;
-            showcase.run();
-            showcase.throw_simple();
-        } else {
-            exit_code = ::theApp->run(); // standard procedure: fire and forget
-        }
+        exit_code = ::theApp->run(); // standard procedure: fire and forget
     }
     catch (exception& e) {
         cout << "standard exception caught: " << e.what() << ". dying :-(" << endl;

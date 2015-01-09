@@ -5,6 +5,6 @@ Feature: program runs showcase
   I want a mode to show the showcase
 
 	Scenario: showcase runs
-    When I start with --testrun=showcase
+    When I start with "showcase"
     Then I should see "testing marian: is matching."
 

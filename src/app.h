@@ -18,19 +18,18 @@ class App {
         App(int argc, char **argv);
         App(initializer_list<char*> argv);
         ~App();
-        const char * const getGreeter();
+        int run();
         // debugging
-        void showArguments();
-        int  run();
-
-    private:
-        vector<string>* d_commandline_arguments;
-        string          config_filename;
-        unsigned int    dmask;
-        bool            verbose;
-
+        const char * const getGreeter();
     protected:
         AppMode setup(Option::Parser& parser);
+    private:
+        vector<string> *d_commandline_arguments;
+        string          d_config_filename;
+        unsigned int    d_dmask;
+        bool            d_verbose;
+
+        void            showArguments();
 };
 
 extern App *theApp;

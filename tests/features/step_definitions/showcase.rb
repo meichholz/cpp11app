@@ -1,4 +1,4 @@
-When /^I start with (\-\S+)$/ do |opt|
+When /^I start with "(.*?)"$/ do |opt|
   @sut ||= Sut::Daemon.new
   @sut.push_arg(opt)
   @sut.run
