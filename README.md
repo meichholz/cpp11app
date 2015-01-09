@@ -1,4 +1,4 @@
-# mguardd
+# cppeleven
 
 This is de facto an application skeleton in progress.
 
