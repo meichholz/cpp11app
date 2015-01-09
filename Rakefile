@@ -19,3 +19,21 @@ ds_post_configure
 
 CLEAN.include "doxygen"
 
+desc 'pull in google test framework source'
+task 'pull:gtest' do
+  chdir 'googletest' do
+    Dir['g*-1*'].each do |treename|
+      puts "removing #{treename}"
+      FileUtils.rm_rf treename
+    end
+    [ 'test', 'mock' ].each do |atype|
+      zipfile = "g#{atype}-1.7.0.zip"
+      sh "wget https://google#{atype}.googlecode.com/files/#{zipfile}"
+      puts "unpacking #{zipfile}"
+      sh "unzip #{zipfile}"
+      FileUtils.rm zipfile
+    end
+  end
+end
+
+

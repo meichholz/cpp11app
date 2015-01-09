@@ -1,6 +1,4 @@
 [submodule "devsupport"]
 	path = devsupport
 	url = https://github.com/meichholz/devsupport.git
-[submodule "googletest"]
-	path = googletest
-	url = https://github.com/meichholz/gtest.git
+

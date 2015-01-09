@@ -2,3 +2,5 @@ tags
 *.out
 /build_dir
 /doxygen
+/googletest
+

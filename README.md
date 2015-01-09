@@ -12,21 +12,27 @@ It integrates and showcases (to ... erm ... at least some extent) some tools to 
 - Google(tm) Mock Framework
 - Cucumber (preferred)
 - shunit2 (fallback, rather brittle)
-- Vim and Vim-Projectionist
-- Rake master control by our Devsupport Framework
+- Vim sporting a bunch of helping modules suggested, like
+- - c-support (the very original)
+- - Vim-Projectionist
+- - [my https://github.com/meichholz/devsupport.git](devsupport) wiring
+- - [my dotvim wiring](https://github.com/meichholz/dotvim.git)
+- Rake master control by [my devsupport](https://github.com/meichholz/devsupport.git).
 
 Whoa, that's a lot of tools, aren't they?
 
 # Building
 
-Well ... You might to have to redirect the `.gitsubmodule` paths to their GitHub counterparts first.
-
 Then You `git submodule init` and `git submodule update` to check the stuff out.
 
-Since there might not be all copies available, for Google Mock, You might need
-to check it out manually (ZIP-files) in the `googletest` directory.
+Get the google test frameworks manually (into `googletest`) or by *Rake*:
 
-Of course You have to install the tools, tune Your Vim environment to get the
+    rake pull:gtest
+
+You may symlink instead, or whatever, since we need this tree building the test
+versions of the program read only.
+
+Of course You have to install any of the tools, tune Your Vim environment to get the
 projectionist for ease of use, and stuff like that.
 
 After all You might be able to run a full cycle by simply
