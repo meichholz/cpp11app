@@ -24,8 +24,7 @@
 // http://www.cprogramming.com/tutorial/template_specialization.html
 namespace Option { // must take place within namespace
     template<>
-        void Value<string>::set(string arg, Flags flags)
-        {
+        void Value<string>::set(string arg, Flags flags) {
             *(d_val.first) = arg;
         }
 }
@@ -108,17 +107,21 @@ const Option::Record *Option::Parser::findRecordByFlag(char oflag) // {{{
     return nullptr;
 }
 // }}}
+/*! Run specified argument string through GNU getopt_long.
+ * \param args the complete commandline (INCLUDING program name at ARGV[0])
+ * \return OK or FAIL
+ * */
 int Option::Parser::parse(vector<string> args) //{{{
 {
     setupGnuInterface();
     int argc = args.size();
     char *argv[argc];
-    for (int i=0; i<argc; i++) { // transscribe args to argv
-        argv[i]=const_cast<char*>(args.at(i).c_str());
+    for (int i = 0; i < argc; i++) { // transscribe args to argv
+        argv[i] = const_cast<char*>(args.at(i).c_str());
     }
     int index;
     auto is_parsing = true;
-    optind = 0; // hard reset getopt library
+    optind = 1; // hard reset getopt library
     while (is_parsing) {
         int ch_num = getopt_long(argc, argv, d_shortopts.c_str(), d_longopts, &index);
         switch (ch_num) {
@@ -137,7 +140,7 @@ int Option::Parser::parse(vector<string> args) //{{{
                 char ch(ch_num);
                 const Record * rec_p = findRecordByFlag(ch);
                 if (!rec_p) throw std::runtime_error("Option::Parser: flag not found");
-                const string value(optarg ? optarg : "1");
+                const string value(optarg ? optarg : "1"); // use "1" as default value with flags
                 rec_p->value().set(value, rec_p->flags());
         }
     }
@@ -146,26 +149,23 @@ int Option::Parser::parse(vector<string> args) //{{{
     return OK;
 }
 //}}}
-void Option::Parser::on // {{{
-    (char o_short, char const *o_long,
-     ValueBase *value_p,
-     char const *description, Flags of)
-{
+void Option::Parser::on ( // {{{ generic: ValueBase
+    char o_short, char const *o_long,
+    ValueBase *value_p,
+    char const *description, Flags of ) {
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, value_p)));
 }
-
-void Option::Parser::on
-    (char o_short, char const *o_long,
-     bool &value, 
-     char const *description)
-{
+//}}}
+void Option::Parser::on ( // {{{ bool
+    char o_short, char const *o_long,
+    bool &value, 
+    char const *description ) {
     auto oval = new Option::Value<bool>(&value, false);
     auto of = Option::Flags::BOOLEAN;
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
-
-// for string, default cstring
-void Option::Parser::on (
+//}}}
+void Option::Parser::on ( // {{{ string with cs default
      char o_short, char const *o_long,
      string &value,
      const char *def_value,
@@ -175,5 +175,4 @@ void Option::Parser::on (
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
 //}}}
-
 

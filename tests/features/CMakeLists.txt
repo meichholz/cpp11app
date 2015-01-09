@@ -1,2 +1,2 @@
-add_test (Cucumber cucumber ${CMAKE_SOURCE_DIR}/tests/features)
+add_test (Cucumber cucumber --color ${CMAKE_SOURCE_DIR}/tests/features)
 

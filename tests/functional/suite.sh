@@ -28,14 +28,14 @@ setUp()
 	fi
 }
 
-test_usage()
+notest_usage()
 {
 	assertMatches "does not greet" "$SUT -h" 'cppeleven'
 	assertMatches "shows no version" "$SUT -V" 'version 0.'
 	assertFalse "accepts wrong option" "$SUT --frobnifyworld"
 }
 
-test_inifile()
+notest_inifile()
 {
 	assertTrue "cannot set config file name" "$SUT -c $BASEDIR/test.ini"
 }

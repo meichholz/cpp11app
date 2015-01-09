@@ -1,7 +1,5 @@
 <!-- run the tests by hitting F11 or (even better) F10 followed by F6 in Vim -->
 
-- mguardd zurückportieren: cucumber-based test, options, app-parameter-naming...
-
 - Optionsannahme fertigstellen
 - Optionsannahme in reguläres Modul ausfaktorisieren
 
