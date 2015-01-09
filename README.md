@@ -23,12 +23,13 @@ Well ... You might to have to redirect the `.gitsubmodule` paths to their GitHub
 
 Then You `git submodule init` and `git submodule update` to check the stuff out.
 
-Since there might not be all copies available, for Google Mock, You might need to check it out manually (ZIP-files) in the `googletest` directory.
+Since there might not be all copies available, for Google Mock, You might need
+to check it out manually (ZIP-files) in the `googletest` directory.
 
 Of course You have to install the tools, tune Your Vim environment to get the
 projectionist for ease of use, and stuff like that.
 
-After all with ``mehoe`` at hand You might be able to run a full cycle by simply
+After all You might be able to run a full cycle by simply
 
     rake edit
     rake check
