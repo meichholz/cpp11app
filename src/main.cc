@@ -7,7 +7,9 @@ using namespace std;
 // see: file:///usr/share/doc/c++-annotations/html/index.html
 
 int
-main (int argc, char **argv) {
+main (int argc, char **argv)
+// {{{
+{
     int exit_code = 0;
     try {
         ::theApp = new App(argc, argv);
@@ -26,4 +28,4 @@ main (int argc, char **argv) {
     ::theApp = nullptr;
     return exit_code;
 }
-
+// }}}

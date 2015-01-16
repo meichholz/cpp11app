@@ -10,19 +10,23 @@ App::App()  : d_config_filename("/etc/cppeleven.conf")
 {
 }
 
-App::App(int argc, char **argv) {
+App::App(int argc, char **argv)
+{
     d_commandline_arguments = new vector<string>;
     for (int i=0; i<argc; i++) {
         d_commandline_arguments->push_back(string(argv[i]));
     }
 }
 
-App::App(initializer_list<char*> argv) {
+App::App(initializer_list<char*> argv)
+{
     d_commandline_arguments = new vector<string>(argv.begin(), argv.end());
 }
 
 //! @return proposed exit code for the application
-int App::run() {
+int
+App::run()
+{
     string programname = "cppeleven";
     string version = "0.0.1";
     string trailer = "MODES:\n\tshowcase : run the showcase suite.\n\tconfig : show configuration.\n"; // TODO use some command/mode abstraction
@@ -56,7 +60,9 @@ int App::run() {
     return 0;
 }
 
-AppMode App::setup(Option::Parser &parser) {
+AppMode
+App::setup(Option::Parser &parser)
+{
     // TODO need real callback blocks<F9>
     bool want_help = false;
     bool want_version = false;
@@ -80,13 +86,16 @@ AppMode App::setup(Option::Parser &parser) {
 }
 
 // for debugging only
-void App::showArguments() {
+void
+App::showArguments()
+{
     for (auto arg : *d_commandline_arguments) {
         cout << "arg: " << arg << endl;
     }
 }
 
-App::~App() {
+App::~App()
+{
     delete d_commandline_arguments; // THINK: does this free the vector content?
 }
 

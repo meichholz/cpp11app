@@ -35,13 +35,17 @@ Option::Parser::Parser(string appname, string argspec) :
     d_shortopts(""),
     d_appname(appname),
     d_argspec(argspec)
-{ }
+{
+}
 
-Option::Parser::~Parser() {
+Option::Parser::~Parser()
+{
     cleanupGnuInterface();
 }
 // }}}
-void Option::Parser::setupGnuInterface() //{{{
+void
+Option::Parser::setupGnuInterface()
+//{{{
 {
     auto c_opts=d_opts.size();
     d_longopts = new struct option [c_opts+1];
@@ -71,14 +75,17 @@ void Option::Parser::setupGnuInterface() //{{{
     // cout << "short options: " << shortopts_ << endl;
 }
 // }}}
-void Option::Parser::cleanupGnuInterface() // {{{
+void
+Option::Parser::cleanupGnuInterface()
+// {{{
 {
     delete [] d_longopts;
     d_longopts = nullptr;
 }
-
 //}}}
-void Option::Parser::showHelp(std::ostream &os) // {{{
+void
+Option::Parser::showHelp(std::ostream &os)
+// {{{
 {
     os << "usage: " << d_appname << " {OPTION} " << d_argspec << endl << endl;
     os << "OPTION may be:" << endl;
@@ -95,7 +102,9 @@ void Option::Parser::showHelp(std::ostream &os) // {{{
     }
 }
 // }}}
-const Option::Record *Option::Parser::findRecordByFlag(char oflag) // {{{
+const Option::Record *
+Option::Parser::findRecordByFlag(char oflag)
+// {{{
 {
     auto c_opts = d_opts.size();
     for (decltype(c_opts) i=0; i<c_opts; i++) // no range possibly possible
@@ -111,7 +120,9 @@ const Option::Record *Option::Parser::findRecordByFlag(char oflag) // {{{
  * \param args the complete commandline (INCLUDING program name at ARGV[0])
  * \return OK or FAIL
  * */
-int Option::Parser::parse(vector<string> args) //{{{
+int
+Option::Parser::parse(vector<string> args)
+//{{{
 {
     setupGnuInterface();
     int argc = args.size();
@@ -149,28 +160,40 @@ int Option::Parser::parse(vector<string> args) //{{{
     return OK;
 }
 //}}}
-void Option::Parser::on ( // {{{ generic: ValueBase
+void
+Option::Parser::on
+//{{{ generic: ValueBase
+    (
     char o_short, char const *o_long,
     ValueBase *value_p,
-    char const *description, Flags of ) {
+    char const *description, Flags of )
+{
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, value_p)));
 }
 //}}}
-void Option::Parser::on ( // {{{ bool
+void
+Option::Parser::on
+//{{{ bool
+    (
     char o_short, char const *o_long,
     bool &value, 
-    char const *description ) {
+    char const *description )
+{
     auto oval = new Option::Value<bool>(&value, false);
     auto of = Option::Flags::BOOLEAN;
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
 //}}}
-void Option::Parser::on ( // {{{ string with cs default
+void
+Option::Parser::on
+//{{{ string with cs default
+    (
      char o_short, char const *o_long,
      string &value,
      const char *def_value,
      char const *description,
-     Option::Flags of ) {
+     Option::Flags of )
+{
     auto oval = new Option::Value<string>(&value, def_value);
     d_opts.push_back(unique_ptr<Record>(new Record(o_short, o_long, description, of, oval)));
 }
